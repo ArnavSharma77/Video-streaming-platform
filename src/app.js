@@ -17,4 +17,13 @@ app.use(express.urlencoded({extended : true , limit :
 app.use(express.static("public"))    //public assets
 app.use(cookieParser())
 
+//routes import
+import userRouter from "./routes/user.routes.js"
+
+
+//routes declaration
+//router ko laane ke liye middleware laana pdega (this is the only syntax)
+app.use("/api/v1/users",userRouter) // /users is prefix  /api/version btana shi rehta hai
+//http://localhost:8000/api/v1/users/register -->user dekhte hi userRouter pe jaayega
+
 export {app}
