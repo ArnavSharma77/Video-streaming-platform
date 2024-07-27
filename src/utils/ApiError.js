@@ -3,7 +3,7 @@ class ApiError extends Error { //inheritance (nodejs / express gives an Error cl
         statusCode,
         message = "Something went wrong",
         errors = [],
-        statck = "" //error stack
+        stack = "" //error stack
     ){
         super(message)
         this.statusCode = statusCode
@@ -12,8 +12,8 @@ class ApiError extends Error { //inheritance (nodejs / express gives an Error cl
         this.success = false
         this.errors = errors
         //just copy:-
-        if (statck) {
-            this.stack = statck
+        if (stack) {
+            this.stack = stack
         } else {
             Error.captureStackTrace(this,this.constructor)
         }
