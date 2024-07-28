@@ -3,6 +3,21 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
+import { validate } from "uuid";
+
+const generateAccessAndRefreshTokens = async(userId) => {
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+        //access token is given to user , but refresh token is stored in the database
+        user.refreshToken = refreshToken
+        await user.save({validateBeforeSave : false}) //save method from mongodb makes the model ensure that all fields such as password are there in it as well. to prevent that use validateBeforeSave-->justs save
+        return {accessToken,refreshToken}
+    } catch (error) {
+        throw new ApiError(500,"Something went wrong while generating refresh and access token")
+    }
+}
 
 const registerUser = asyncHandler( async (req,res)=> {
     // get user details from frontend
@@ -70,4 +85,85 @@ const registerUser = asyncHandler( async (req,res)=> {
     )
 } )
 
-export {registerUser}
+const loginUser = asyncHandler (async (req,res)=>{
+    // req body --> data (request body se data le aao)
+    // check if the username or email is there or not
+    // find the user
+    // password check
+    // generate access and refresh token
+    // send tokens in form of cookies + send response
+
+    const {email,username,password} = req.body
+    console.log(email)
+    if (!username && !email) {
+        throw new ApiError(400,"username or email is required")
+    }
+
+    const user = await User.findOne({
+        $or : [{email},{username}]
+    })
+
+    if (!user) {
+        throw new ApiError(404, "User does not exist")
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password)
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid user credentials")
+    }
+    
+    const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id)
+    
+    const loggedInUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    )
+
+    const options = {
+        httpOnly : true,
+        secure : true  //now only server can modify the cookies
+    }
+    return res
+    .status(200)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refreshToken",refreshToken,options)
+    .json(
+        new ApiResponse(200,{
+            user : loggedInUser,accessToken,refreshToken
+        },"User logged in Successfully")
+    )
+
+})
+
+const logoutUser = asyncHandler (async (req,res)=>{
+    // 1st step--> clearance of access and refresh token (req.cookie has them)
+    // problem - no form submission --> no email,password etc --> no User.findOne(__) 
+    // solution : use middleware
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set : {
+                refreshToken : undefined
+            }
+        },
+        {
+            new : true
+        }
+    )
+
+    const options = {
+        httpOnly : true,
+        secure : true
+    }
+    console.log(req.user._id);
+    return res
+    .status(200)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(new ApiResponse(200,{},"User logged Out"))
+})
+
+export {
+    registerUser,
+    loginUser,
+    logoutUser
+}
