@@ -221,7 +221,7 @@ const changeCurrentPassword = asyncHandler(async (req,res)=>{
 
 const getCurrentUser = asyncHandler(async (req,res)=> {
     return res.status(200) //to get.. he must be logged in--> get him by req.user
-    .json(200,req.user,"current user fetched successfully")
+    .json(new ApiResponse(200,req.user,"current user fetched successfully"))
 })
 
 const updateAccountDetails = asyncHandler(async (req,res)=>{
@@ -245,10 +245,13 @@ const updateAccountDetails = asyncHandler(async (req,res)=>{
 })
 
 const updateUserAvatar = asyncHandler(async (req,res)=>{
-    const avatarLocalPath = req.file?.path
+    const avatarLocalPath = req.file?.path //through multer middleware
     if (!avatarLocalPath) {
         throw new ApiError(400,"Avatar is missing")
     }
+
+    //TODO delete old image - assignment
+
     const avatar = await uploadOnCloudinary(avatarLocalPath) //avatar is an object
     if (!avatar.url) {
         throw new ApiError(400, "Error while uploading on cloudinary")
@@ -265,7 +268,7 @@ const updateUserAvatar = asyncHandler(async (req,res)=>{
 })
 
 const updateUserCoverImage = asyncHandler(async (req,res)=>{
-    const coverImageLocalPath = req.file?.path
+    const coverImageLocalPath = req.file?.path //through multer middleware
     if (!coverImageLocalPath) {
         throw new ApiError(400,"Cover Image file is missing")
     }
