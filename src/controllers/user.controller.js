@@ -5,7 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
 import { validate } from "uuid";
 import jwt from "jsonwebtoken"
-
+import mongoose from "mongoose";
 const generateAccessAndRefreshTokens = async(userId) => {
     try {
         const user = await User.findById(userId)
@@ -142,8 +142,8 @@ const logoutUser = asyncHandler (async (req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set : {
-                refreshToken : undefined
+            $unset : {
+                refreshToken : 1 //this removes the field from form the doc
             }
         },
         {
@@ -203,20 +203,22 @@ const refreshAccessToken = asyncHandler(async (req,res)=>{
     }
 })
 
-const changeCurrentPassword = asyncHandler(async (req,res)=>{
+const changeCurrentPassword = asyncHandler(async(req, res) => {
     const {oldPassword, newPassword} = req.body
 
-    const user = await User.findById(req.user?._id) //doubt --> if the user is logged in , we have run a middleware verifyJWT . therefore we can get user fro there
-    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword) //con--> if the user is logged in we can get him by req.user
+    const user = await User.findById(req.user?._id)
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
 
-    if (isPasswordCorrect) {
+    if (!isPasswordCorrect) {
         throw new ApiError(400, "Invalid old password")
     }
-    user.password = newPassword; //before this pre hook would trigger
+
+    user.password = newPassword
     await user.save({validateBeforeSave: false})
 
-    return res.status(200)
-    .json(new ApiResponse(200,{},"Password changed"))
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
 const getCurrentUser = asyncHandler(async (req,res)=> {
