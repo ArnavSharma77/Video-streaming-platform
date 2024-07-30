@@ -19,7 +19,6 @@ export const verifyJWT = asyncHandler(async (req,res,next)=>{
             "-password -refreshToken"
         )
         if (!user) {
-            //NEXT_VIDEO : discuss about frontend
             throw new ApiError(401,"Invalid Access Token")
         }
     
