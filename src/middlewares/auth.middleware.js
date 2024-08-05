@@ -9,6 +9,11 @@ export const verifyJWT = asyncHandler(async (req,res,next)=>{
     //res mai bheji thi cookies req m bhi kr pa rhe
     //no need to set req.cookies.. here,. we already gave req the access to cookies through middleware app.use(cookieParser())
     try {
+        if (req.query.guest === "true") {
+            req.user = null; // Set req.user to null for guest users
+            return next();
+        }
+                
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")   
         if (!token) {
             throw new ApiError(401,"Unauthorized request")
