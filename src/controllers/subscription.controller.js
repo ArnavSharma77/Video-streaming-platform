@@ -9,11 +9,6 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const toggleSubscription = asyncHandler(async (req, res) => {
     const { channelId } = req.params;
     const userId = req.user._id;
-  
-    if (userId.toHexString() === channelId) {
-      throw new ApiError(401, "Self-Subscription is prohibited");
-    }
-  
     let isSubscribed = await Subscription.findOne({
       channel: channelId,
       subscriber: userId,
@@ -38,7 +33,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     let { channelId } = req.params;
-  
+    console.log(channelId);
     channelId = new mongoose.Types.ObjectId(channelId);
   
     const channelSubscribers = await Subscription.aggregate([
@@ -114,8 +109,8 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params;
-  
+    const { channelId } = req.params;
+    const subscriberId = channelId;
     const subscribedChannels = await Subscription.aggregate([
       {
         $match: {

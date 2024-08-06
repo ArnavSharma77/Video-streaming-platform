@@ -106,8 +106,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
       throw new ApiError(500, "An error occurred while fetching videos");
     }
   });
-  
-  
+
+
 
 const publishAVideo = asyncHandler(async (req, res) => {
     // get video, upload to cloudinary, create video
