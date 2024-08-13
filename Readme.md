@@ -4,4 +4,5 @@ This is a complete video hosting website similar to youtube with all the feature
 Project uses all standard practices like JWT, bcrypt, access tokens, refresh Tokens and many more.
 
 Here is the model link for the project
-[Your link here](https://app.eraser.io/workspace/HJpcQJzAHdTKzCKACTNh)
+
+[model](https://app.eraser.io/workspace/HJpcQJzAHdTKzCKACTNh)
