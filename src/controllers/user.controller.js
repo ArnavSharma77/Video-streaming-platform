@@ -94,7 +94,6 @@ const loginUser = asyncHandler (async (req,res)=>{
     // send tokens in form of cookies + send response
 
     const {email,username,password} = req.body
-    console.log(email)
     if (!username && !email) {
         throw new ApiError(400,"username or email is required")
     }
@@ -143,7 +142,7 @@ const logoutUser = asyncHandler (async (req,res)=>{
         req.user._id,
         {
             $unset : {
-                refreshToken : 1 //this removes the field from form the doc
+                refreshToken : 1 //this removes the field from the doc
             }
         },
         {

@@ -13,7 +13,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
     
     const pipeline = [];
   
-    // Search using Atlas Search
     if (query) {
       pipeline.push({
         $search: {
@@ -26,7 +25,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
       });
     }
   
-    // Match videos by userId if provided
     if (userId) {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new ApiError(400, "Invalid userId");
@@ -39,10 +37,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
       });
     }
   
-    // Match only published videos
     pipeline.push({ $match: { isPublished: true } });
   
-    // Sort videos
     if (sortBy && (sortType === "asc" || sortType === "desc")) {
       pipeline.push({
         $sort: {
@@ -76,14 +72,12 @@ const getAllVideos = asyncHandler(async (req, res) => {
       }
     );
   
-    // Pagination
     const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
     const limitInt = parseInt(limit, 10);
   
     pipeline.push({ $skip: skip });
     pipeline.push({ $limit: limitInt });
   
-    // Execute the aggregation
     try {
       const videos = await Video.aggregate(pipeline);
       const totalVideos = await Video.countDocuments({ isPublished: true });
@@ -161,15 +155,11 @@ const publishAVideo = asyncHandler(async (req, res) => {
          isPublished:req.body.isPublic == "false" ? false : true
         
      })
-     //console.log("mail sent")
      return res
      .status(201)
      .json(
          new ApiResponse(201,video,"video is published")
-     )
-     // video/:videoId
-     
-     //TODO: send email from here 
+     )     
    } catch (error) {
      res
      .status(error?.statusCode||500)
@@ -229,7 +219,6 @@ const getVideoById = asyncHandler(async (req, res) => {
       if(!video) throw new ApiError(400,"video with this videoId is missing")
       const ownerId = video?.owner;
       const permission = JSON.stringify(ownerId) == JSON.stringify(userId);
-    //  console.log(JSON.stringify(ownerId),JSON.stringify(userId))
   
       if(!permission) throw new ApiError(400,"login with owner id");
       
@@ -315,9 +304,6 @@ const getVideoById = asyncHandler(async (req, res) => {
  }
 })
 
-// const togglePublishStatus = asyncHandler(async (req, res) => {
-//     const { videoId } = req.params
-// })
 
 export {
     getAllVideos,
