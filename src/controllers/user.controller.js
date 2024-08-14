@@ -252,7 +252,6 @@ const updateUserAvatar = asyncHandler(async (req,res)=>{
         throw new ApiError(400,"Avatar is missing")
     }
 
-    //TODO delete old image - assignment
 
     const avatar = await uploadOnCloudinary(avatarLocalPath) //avatar is an object
     if (!avatar.url) {
