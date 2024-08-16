@@ -40,7 +40,5 @@ app.use("/api/v1/comments", commentRouter)
 app.use("/api/v1/likes", likeRouter)
 app.use("/api/v1/playlist", playlistRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
-app.get("/api/v1",(req,res)=>{
-    res.json("Hello Arnav Sharma...");
-})
+
 export {app}

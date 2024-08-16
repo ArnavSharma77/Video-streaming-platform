@@ -1,4 +1,4 @@
-class ApiError extends Error { //inheritance (nodejs / express gives an Error class)
+class ApiError extends Error { 
     constructor(
         statusCode,
         message = "Something went wrong",
